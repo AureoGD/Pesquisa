@@ -29,34 +29,34 @@ u_max  = 100;
 clc
 clearvars X Y_table Q_table inQ_table F_table
 Aad1 = [sysd.A*0.05 0;
-        Ts*sysd.C    1]; %criação do politopo convexo de Aad
+        Ts*sysd.C   1]; %criação do politopo convexo de Aad2
     
 Aad2 = [sysd.A*1.05 0;
-        Ts*sysd.C    1] %criação do politopo convexo de Aad
+        Ts*sysd.C   1]; %criação do politopo convexo de Aad2
+
 % Cad = [1 1];
 % %Ponderação de estados e ação de controle:
 % Y_max = [0.0944 ; C*x_max].^2;
 
 %U_max = [u_max]^2;
 
-U_max = [5]^2;
+U_max = [10]^2;
 
 % É preciso encontra S estados do sistema, e criar um vetor com eles
 S = 5 %nº de elipses
 
-X = [x_max*Ts   , C*x_max;
-     x_max/2*Ts , C*x_max/2;
-     x_max/4*Ts , C*x_max/4;
-     x_max/16*Ts, C*x_max/26;
-     x_max/32*Ts, C*x_max/32];
+X = [x_max   , C*x_max;
+     x_max/2 , C*x_max/2;
+     x_max/4 , C*x_max/4;
+     x_max/16, C*x_max/26;
+     x_max/32, C*x_max/32];
  
 %Qq    = [1/(sysd.B*u_max)^2 0; 
  %        0 1/(350)^2];
-
      
 %Rq    = [1/u_max^2];
 
-Qq = [1 0; 0 1];
+Qq = [1/x_max 0; 0 1/C*x_max];
 
 Rq = [1];
 
