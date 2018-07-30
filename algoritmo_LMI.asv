@@ -16,11 +16,8 @@ Ts = 0.01;
 sysd = c2d(sys,Ts);
 
 %Sistema aumenado:
-Aad = [sysd.A,         0; 
-      Ts*sysd.C*sysd.A 1];
-
-Bad = [sysd.B; 
-       sysd.C*sysd.B];
+Aad = [sysd.A, 0; Ts*sysd.C 1];
+Bad = [sysd.B; sysd.C.sys];
 
 %limitação maxima do sistema:
 y_max = 350;

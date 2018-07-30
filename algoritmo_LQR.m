@@ -4,6 +4,12 @@ close all
 Tsimu = 5;
 Nint = Tsimu/Ts;
 
+Qq = [0.1 0; 0 0.1];
+
+Rq = [100];
+
+Kctr = dlqr(Aad, Bad, Qq, Rq);
+
 du(1:Nint) = 0;
 U(1:Nint) = 0;
 ref(1:Nint) = 350;
@@ -36,31 +42,13 @@ for k = 2:Nint
     %planta    
     x(k)   = sysd.A*x(k-1) + sysd.B*U(k-1); 
     y(k)   = sysd.C*x(k);
- 
+    
+    %obtenção da derivada do estado, do erro, e montagem do vetor x aumentado
     dx(k) = x(k) - x(k-1);
     e(k)  = y(k) - ref(k);
-    %obtenção da derivada do estado, do erro, e montagem do vetor x aumentado
-    x_a    = [dx(k); -e(k)];% este sinal deveria ser positivo
+    x_a    = [dx(k); e(k)];% este sinal deveria ser positivo
     
-    index = S;
-    for i=1:S
-        val = round((x_a'*inQ_table{i}*x_a)*10000)/10000;
-        if (val <= 1)
-            index = i;
-        end
-    end
-    
-    id(k) = index;
-    if index ~= S
-        alfa = (1-x_a'*inQ_table{index+1}*x_a)/(x_a'*(inQ_table{index}-inQ_table{index+1})* x_a);
-        %u(k) = -(alfa*F_table{index}+(1-alfa)*F_table{index+1})*x_a;
-        du(k) = (alfa*F_table{index}+(1-alfa)*F_table{index+1})*x_a;
-    else
-        %u(k)= -F_table{S}*x_a;
-        du(k) = F_table{S}*x_a;
-    end
-    J(k) = x_a'*Qq*x_a + du(k)'*Rq*du(k); 
-    U(k) = U(k-1)+du(k);
+    U(k) = U(k-1)-Kctr*x_a;
 end
 
 t = 0:(Nint-1);
@@ -85,5 +73,3 @@ for i=1:Nint
 end
 plot(t,e_rms(1,:))
 
-figure()
-plot(t,J(1,:))

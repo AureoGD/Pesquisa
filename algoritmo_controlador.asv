@@ -13,7 +13,7 @@ y(1:Nint) = 0;
 e(1:Nint) = 0;
 w(1:Nint) = 0;
 id(1:Nint)= 0;
-J(1:Nint)= 0;
+id(1:Nint)= 0;
 
 
 % for i = 1:150
@@ -34,13 +34,13 @@ i = 0;
 
 for k = 2:Nint
     %planta    
-    x(k)   = sysd.A*x(k-1) + sysd.B*U(k-1); 
+    x(k)   = sysd.A*x(k-1)+ sysd.B*U(k-1); 
     y(k)   = sysd.C*x(k);
  
     dx(k) = x(k) - x(k-1);
     e(k)  = y(k) - ref(k);
     %obtenção da derivada do estado, do erro, e montagem do vetor x aumentado
-    x_a    = [dx(k); -e(k)];% este sinal deveria ser positivo
+    x_a    = [dx(k); e(k)];
     
     index = S;
     for i=1:S
@@ -59,8 +59,8 @@ for k = 2:Nint
         %u(k)= -F_table{S}*x_a;
         du(k) = F_table{S}*x_a;
     end
-    J(k) = x_a'*Qq*x_a + du(k)'*Rq*du(k); 
-    U(k) = U(k-1)+du(k);
+    
+    U(k) = U(k-1)-du(k);
 end
 
 t = 0:(Nint-1);
@@ -86,4 +86,4 @@ end
 plot(t,e_rms(1,:))
 
 figure()
-plot(t,J(1,:))
+plot(t,id(1,:))
