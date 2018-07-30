@@ -61,7 +61,7 @@ X = [x_max   , C*x_max;
 
 Qq = [1/x_max 0; 0 1/C*x_max];
 
-Rq = [1/10^2];
+Rq = [1/100^2];
 
 for i=1:S
     
@@ -77,15 +77,15 @@ for i=1:S
     LMI1   = [  1      ,  X(i,:)
                X(i,:)' ,   Q ];
     
-    LMI2_1 = [     Q        , (Q*Aad1'+Y'*Bad') , Q*Qq^1/2     , Y'*Rq^1/2;
+    LMI2_1 = [     Q        , (Q*Aad1'+Y'*Bad') , Q*Qq'^(1/2) , Y'*Rq^(1/2);
              (Aad1*Q+Bad*Y) ,         Q         , zeros(2,2)   , zeros(2,1);      
-              Qq^1/2*Q      ,    zeros(2,1)     , gamma*eye(2) , zeros(2,2);
-              Rq^1/2*Y      ,    zeros(1,2)     , zeros(1,2)   , gamma*eye(1)];
+              Qq^(1/2)*Q      ,    zeros(2,1)     , gamma*eye(2) , zeros(2,2);
+              Rq^(1/2)*Y      ,    zeros(1,2)     , zeros(1,2)   , gamma*eye(1)];
    
-    LMI2_2 = [     Q        , (Q*Aad2'+Y'*Bad') , Q*Qq^1/2     , Y'*Rq^1/2;
+    LMI2_2 = [     Q        , (Q*Aad2'+Y'*Bad') , Q*Qq'^(1/2) , Y'*Rq^(1/2);
              (Aad2*Q+Bad*Y) ,         Q         , zeros(2,2)   , zeros(2,1);      
-              Qq^1/2*Q      ,    zeros(2,1)     , gamma*eye(2) , zeros(2,2);
-              Rq^1/2*Y      ,    zeros(1,2)     , zeros(1,2)   , gamma*eye(1)];
+              Qq^(1/2)*Q      ,    zeros(2,1)     , gamma*eye(2) , zeros(2,2);
+              Rq^(1/2)*Y      ,    zeros(1,2)     , zeros(1,2)   , gamma*eye(1)];
            
      Res_U = [U_r, Y;
               Y' , Q];

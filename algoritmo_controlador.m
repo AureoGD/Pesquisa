@@ -1,7 +1,7 @@
 clc
 clearvars x y x_e i ref t u e U du e e_rms
 close all
-Tsimu = 5;
+Tsimu = 10;
 Nint = Tsimu/Ts;
 
 du(1:Nint) = 0;
@@ -84,6 +84,9 @@ for i=1:Nint
     e_rms(i) = sqrt(e(i)^2); 
 end
 plot(t,e_rms(1,:))
+
+figure()
+plot(t,id(1,:))
 
 figure()
 plot(t,J(1,:))
