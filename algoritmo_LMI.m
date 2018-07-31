@@ -43,7 +43,7 @@ Aad2 = [sysd.A*1.05          0;
 
 %U_max = [u_max]^2;
 
-U_max = [10]^2;
+U_max = [2.5]^2;
 
 % É preciso encontra S estados do sistema, e criar um vetor com eles
 S = 5 %nº de elipses

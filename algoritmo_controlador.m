@@ -14,6 +14,7 @@ e(1:Nint) = 0;
 w(1:Nint) = 0;
 id(1:Nint)= 0;
 J(1:Nint)= 0;
+x_a(2,1:Nint) = 0;
 
 
 % for i = 1:150
@@ -40,11 +41,11 @@ for k = 2:Nint
     dx(k) = x(k) - x(k-1);
     e(k)  = y(k) - ref(k);
     %obtenção da derivada do estado, do erro, e montagem do vetor x aumentado
-    x_a    = [dx(k); -e(k)];% este sinal deveria ser positivo
+    x_a(:,k) = [dx(k); -e(k)];% este sinal deveria ser positivo
     
     index = S;
     for i=1:S
-        val = round((x_a'*inQ_table{i}*x_a)*10000)/10000;
+        val = round((x_a(:,k)'*inQ_table{i}*x_a(:,k))*10000)/10000;
         if (val <= 1)
             index = i;
         end
@@ -52,14 +53,14 @@ for k = 2:Nint
     
     id(k) = index;
     if index ~= S
-        alfa = (1-x_a'*inQ_table{index+1}*x_a)/(x_a'*(inQ_table{index}-inQ_table{index+1})* x_a);
-        %u(k) = -(alfa*F_table{index}+(1-alfa)*F_table{index+1})*x_a;
-        du(k) = (alfa*F_table{index}+(1-alfa)*F_table{index+1})*x_a;
+        alfa = (1-x_a(:,k)'*inQ_table{index+1}*x_a(:,k))/(x_a(:,k)'*(inQ_table{index}-inQ_table{index+1})* x_a(:,k));
+        %u(k) = -(alfa*F_table{index}+(1-alfa)*F_table{index+1})*x_a(:,k);
+        du(k) = (alfa*F_table{index}+(1-alfa)*F_table{index+1})*x_a(:,k);
     else
-        %u(k)= -F_table{S}*x_a;
-        du(k) = F_table{S}*x_a;
+        %u(k)= -F_table{S}*x_a(:,k);
+        du(k) = F_table{S}*x_a(:,k);
     end
-    J(k) = x_a'*Qq*x_a + du(k)'*Rq*du(k); 
+    J(k) = x_a(:,k)'*Qq*x_a(:,k) + du(k)'*Rq*du(k); 
     U(k) = U(k-1)+du(k);
 end
 
