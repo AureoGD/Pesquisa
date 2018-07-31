@@ -54,11 +54,18 @@ S = 5 %nº de elipses
 
 % O deltaX_max é dado para o maximo deltaU*Bd =0.944
 
- X = [sysd.B*100   , C*x_max;
-      sysd.B*100/2 , C*x_max/2;
-      sysd.B*100/4 , C*x_max/4;
-      sysd.B*100/16, C*x_max/16;
+%  X = [sysd.B*100   , C*x_max;
+%       sysd.B*100/2 , C*x_max/2;
+%       sysd.B*100/4 , C*x_max/4;
+%       sysd.B*100/16, C*x_max/26;
+%       sysd.B*100/32, C*x_max/32];
+
+ X = [sysd.B*100   , 100;
+      sysd.B*100/2 , 100/2;
+      sysd.B*100/4 , C*_max/4;
+      sysd.B*100/16, C*x_max/26;
       sysd.B*100/32, C*x_max/32];
+
 
 %Qq    = [1/(sysd.B*u_max)^2 0; 
  %        0 1/(350)^2];
@@ -71,7 +78,7 @@ S = 5 %nº de elipses
 
 Qq = [0.1/(sysd.B*100)^2 0; 0 1/(C*x_max)^2];
 
-Rq = [1/5^2];
+Rq = [1/10^2];
 
 for i=1:S
     
