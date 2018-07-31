@@ -4,9 +4,8 @@ close all
 Tsimu = 5;
 Nint = Tsimu/Ts;
 
-Qq = [0.1 0; 0 0.1];
-
-Rq = [100];
+Qq = [1/x_max^2 0; 0 1/C*x_max^2];
+Rq = [1/10^2];
 
 Kctr = dlqr(Aad, Bad, Qq, Rq);
 
@@ -22,20 +21,19 @@ id(1:Nint)= 0;
 J(1:Nint)= 0;
 
 
-% for i = 1:150
-% %     ref(i)= 350*i/150;
-%     ref(i) = 100;
-% end
-% 
-% for i = 1:200
-% %  ref(i+150)= 350;
-%    ref(i+150) = 350;
-% end
-%     
-% for i = 1:150
-% %    ref(i+350)= -350*i/150 +350;
-%      ref(i+350)= -120;
-% end
+for i = 1:150
+    ref(i)= 350*i/150;
+%    ref(i) = 100;
+end
+
+for i = 1:200
+%  ref(i+150)= 350;
+end
+    
+for i = 1:150
+   ref(i+350)= -350*i/150 +350;
+%   ref(i+350)= -120;
+end
 i = 0;
 
 for k = 2:Nint
@@ -46,9 +44,10 @@ for k = 2:Nint
     %obtenção da derivada do estado, do erro, e montagem do vetor x aumentado
     dx(k) = x(k) - x(k-1);
     e(k)  = y(k) - ref(k);
-    x_a    = [dx(k); e(k)];% este sinal deveria ser positivo
+    x_a   = [dx(k); -e(k)];% este sinal deveria ser positivo
     
-    U(k) = U(k-1)-Kctr*x_a;
+    du(k) = Kctr*x_a;
+    U(k) = U(k-1)+du(k);
 end
 
 t = 0:(Nint-1);

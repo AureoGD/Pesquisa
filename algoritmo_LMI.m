@@ -31,15 +31,21 @@ u_max  = 100;
 %% LMI's para a solução do off line-MPC: Função custo J = x'Qx+u'Ru com estado aumentado
 clc
 clearvars X Y_table Q_table inQ_table F_table
-Aad1 = [sysd.A*0.05          0;
-        sysd.C*sysd.A*0.05   1]; %criação do politopo convexo de Aad2
-    
-Aad2 = [sysd.A*1.05          0;
-        sysd.C*sysd.A*1.05   1]; %criação do politopo convexo de Aad2
 
-% Cad = [1 1];
-% %Ponderação de estados e ação de controle:
-% Y_max = [0.0944 ; C*x_max].^2;
+%criação do politopo convexo de Aad2
+Aad1 = [sysd.A*0.05          0;
+        sysd.C*sysd.A*0.05   1]; 
+    
+%criação do politopo convexo de Aad2   
+Aad2 = [sysd.A*1.05          0;
+        sysd.C*sysd.A*1.05   1]; 
+
+Cad = [1 0;
+       0 1];
+%Ponderação de estados e ação de controle:
+
+Y_max = [0.0944     0  ;
+         0      x_max].^2;
 
 %U_max = [u_max]^2;
 
@@ -59,8 +65,11 @@ X = [x_max   , C*x_max;
      
 %Rq    = [1/u_max^2];
 
-Qq = [1/x_max 0; 0 1/C*x_max];
+% Qq = [1/x_max 0; 0 1/C*x_max];
+% 
+% Rq = [1/100^2];
 
+Qq = [1/x_max^2 0; 0 1/C*x_max^2];
 Rq = [1/100^2];
 
 for i=1:S
@@ -71,30 +80,30 @@ for i=1:S
     Y     = sdpvar(1,2,'full'); %Define assim por padrão
     Q     = sdpvar(2,2,'symmetric'); %Define automaticamente que é simetrica
     U_r   = sdpvar(1,1,'full');
-    Y_r   = sdpvar(1,1,'full');
+    Y_r   = sdpvar(2,2,'symmetric'); 
     gamma = sdpvar(1,1,'full');
   
     LMI1   = [  1      ,  X(i,:)
                X(i,:)' ,   Q ];
     
-    LMI2_1 = [     Q        , (Q*Aad1'+Y'*Bad') , Q*Qq'^(1/2) , Y'*Rq^(1/2);
-             (Aad1*Q+Bad*Y) ,         Q         , zeros(2,2)   , zeros(2,1);      
+    LMI2_1 = [     Q          , (Q*Aad1'+Y'*Bad') , Q*Qq'^(1/2)  , Y'*Rq^(1/2);
+             (Aad1*Q+Bad*Y)   ,         Q         , zeros(2,2)   , zeros(2,1);      
               Qq^(1/2)*Q      ,    zeros(2,1)     , gamma*eye(2) , zeros(2,2);
               Rq^(1/2)*Y      ,    zeros(1,2)     , zeros(1,2)   , gamma*eye(1)];
    
-    LMI2_2 = [     Q        , (Q*Aad2'+Y'*Bad') , Q*Qq'^(1/2) , Y'*Rq^(1/2);
-             (Aad2*Q+Bad*Y) ,         Q         , zeros(2,2)   , zeros(2,1);      
+    LMI2_2 = [     Q          , (Q*Aad2'+Y'*Bad') , Q*Qq'^(1/2)  , Y'*Rq^(1/2);
+             (Aad2*Q+Bad*Y)   ,         Q         , zeros(2,2)   , zeros(2,1);      
               Qq^(1/2)*Q      ,    zeros(2,1)     , gamma*eye(2) , zeros(2,2);
               Rq^(1/2)*Y      ,    zeros(1,2)     , zeros(1,2)   , gamma*eye(1)];
            
      Res_U = [U_r, Y;
               Y' , Q];
           
-%      Res_Y1 = [     Q              ,   (Aad1*Q+ Bad*Y)'*Cad';
-%                Cad*(Aad1*Q+ Bad*Y) ,           Y_r        ];
-%           
-%      Res_Y2 = [     Q              ,   (Aad2*Q+ Bad*Y)'*Cad';
-%                Cad*(Aad2*Q+ Bad*Y) ,           Y_r        ];
+     Res_Y1 = [     Y_r              ,   C*(Aad1*Q+ Bad*Y);
+               (Aad1*Q+ Bad*Y)'*Cad' ,           Q        ];
+          
+     Res_Y2 = [     Y_r              ,   C*(Aad2*Q+ Bad*Y);
+               (Aad2*Q+ Bad*Y)'*Cad' ,           Q        ];
     
     %verificar o help do sdpvar
         LMIs  =  [];
@@ -104,9 +113,9 @@ for i=1:S
         LMIs  =  [LMIs , LMI2_2      >= 0];
         LMIs  =  [LMIs , Res_U       >= 0];
         LMIs  =  [LMIs , U_max-U_r   >= 0];
-%         LMIs  =  [LMIs , Res_Y1    >= 0];
-%         LMIs  =  [LMIs , Res_Y2    >= 0];
-%         LMIs  =  [LMIs , Y_max-Y_r >= 0];
+        LMIs  =  [LMIs , Res_Y1      >= 0];
+        LMIs  =  [LMIs , Res_Y2      >= 0];
+        LMIs  =  [LMIs , Y_max-Y_r   >= 0];
     if (i~=1)
         LMIs  =  [LMIs , Q_table{i-1} - Q > 0];
     end

@@ -1,7 +1,7 @@
 clc
-clearvars x y x_e i ref t u e U du e e_rms
+clearvars x y x_e i ref t u e U du e e_rms J id dx
 close all
-Tsimu = 10;
+Tsimu = 5;
 Nint = Tsimu/Ts;
 
 du(1:Nint) = 0;
@@ -16,20 +16,19 @@ id(1:Nint)= 0;
 J(1:Nint)= 0;
 
 
-% for i = 1:150
-% %     ref(i)= 350*i/150;
-%     ref(i) = 100;
-% end
-% 
-% for i = 1:200
-% %  ref(i+150)= 350;
-%    ref(i+150) = 350;
-% end
-%     
-% for i = 1:150
-% %    ref(i+350)= -350*i/150 +350;
-%      ref(i+350)= -120;
-% end
+for i = 1:150
+    ref(i)= 350*i/150;
+    %ref(i) = 100;
+end
+
+for i = 1:200
+   ref(i+150) = 350;
+end
+    
+for i = 1:150
+    ref(i+350)= -350*i/150 +350;
+   %ref(i+350)= -120;
+end
 i = 0;
 
 for k = 2:Nint
@@ -71,8 +70,8 @@ plot(t,ref(1,:))
 title('Output')
 
 figure()
-plot(t,U(1,:))
-title('U')
+plot(t,dx(1,:))
+title('Delta x')
 
 figure()
 plot(t,du(1,:))
@@ -84,6 +83,7 @@ for i=1:Nint
     e_rms(i) = sqrt(e(i)^2); 
 end
 plot(t,e_rms(1,:))
+title('erro rms')
 
 figure()
 plot(t,id(1,:))
