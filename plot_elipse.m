@@ -2,7 +2,7 @@ function [ x_elipse, y_elipse, a, b, theta ] = plot_elipse( Q , N )
 %plot_elipse Plota uma Elipse a partir da forma quadratica x'Qx = 1
 %   Q - Matriz simetrica da equação
 %   N - Número de pontos
-
+%   Referência - https://www.geometrictools.com/Documentation/InformationAboutEllipses.pdf
     x_elipse = zeros(N);
     y_elipse = zeros(N);
 
