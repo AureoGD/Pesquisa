@@ -3,8 +3,8 @@ function [ x_elipse, y_elipse, a, b, theta ] = plot_elipse( Q , N )
 %   Q - Matriz simetrica da equação
 %   N - Número de pontos
 %   Referência - https://www.geometrictools.com/Documentation/InformationAboutEllipses.pdf
-    x_elipse = zeros(N);
-    y_elipse = zeros(N);
+    x_elipse = zeros(1,N);
+    y_elipse = zeros(1,N);
 
     theta = 0.5*atan(2*Q(1,2)/((Q(1,1)-Q(2,2))));
     m11 = Q(1,1);

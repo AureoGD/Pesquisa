@@ -36,30 +36,34 @@ Aad1 = [sysd.A*0.05          0;
     
 Aad2 = [sysd.A*1.05          0;
         sysd.C*sysd.A*1.05   1]; %criação do politopo convexo de Aad2
-
+    
 % Cad = [1 1];
 % %Ponderação de estados e ação de controle:
 % Y_max = [0.0944 ; C*x_max].^2;
 
 %U_max = [u_max]^2;
 
-U_max = [2.5]^2;
+U_max = [5]^2;
 
 % É preciso encontra S estados do sistema, e criar um vetor com eles
 S = 5 %nº de elipses
 
-X = [x_max   , C*x_max;
-     x_max/2 , C*x_max/2;
-     x_max/4 , C*x_max/4;
-     x_max/16, C*x_max/26;
-     x_max/32, C*x_max/32];
+ X = [x_max*Ts   , C*x_max;
+      x_max/2*Ts , C*x_max/2;
+      x_max/4*Ts , C*x_max/4;
+      x_max/16*Ts, C*x_max/26;
+      x_max/32*Ts, C*x_max/32];
+% 
+% X(1:S,1) = [sysd.B*u_max];
+% X(1:S,2) = [C*x_max];
+ 
  
 %Qq    = [1/(sysd.B*u_max)^2 0; 
  %        0 1/(350)^2];
      
 %Rq    = [1/u_max^2];
 
-Qq = [1/x_max 0; 0 1/C*x_max];
+Qq = [1 0; 0 0];
 
 Rq = [1/100^2];
 
