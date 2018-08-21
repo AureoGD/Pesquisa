@@ -88,7 +88,7 @@ lambda0 = (-inv(H)*G')\z0
 % F = F_example_double;
 % S = S_example_double;
 
-%% Obtenção de G_tio, W_tio e S_tio
+%% Obtenção de G_tio, W_tio e S_tio, e CR0
 
 tol = 10e-6;
 index = [];
@@ -113,48 +113,123 @@ end
 
 T = (inv(H)*G_tio'*inv(G_tio*inv(H)*G_tio'));
 
-A0_1 = G*T*S_tio-S
-b_1 = W - G*T*W_tio
-A0_2 = inv(G_tio*inv(H)*G_tio')*S_tio
-b_2 = -inv(G_tio*inv(H)*G_tio')*W_tio
+%Inequações que descrição a região CR0 pelas inequações que garantem a
+%resposta ótima
+A_CR0_1 = G*T*S_tio-S
+b_CR0_1 = W - G*T*W_tio
+A_CR0_2 = inv(G_tio*inv(H)*G_tio')*S_tio
+b_CR0_2 = -inv(G_tio*inv(H)*G_tio')*W_tio
 
-A_plot = [A0_1(3:4,:); A0_2];
-b_plot = [b_1(3:4,:); b_2];
+%Restrição do tamanho dos estado -1.5 <= x1,x2 <= 1.5
+A_espaco = [1 0; 0 1; -1 0; 0 -1];
+b_espaco = [1.5; 1.5; 1.5; 1.5];
+
+A_CR0 = [];
+b_CR0 = [];
+for i = 1:size(A_CR0_1,1)
+    if (A_CR0_1(i,:) ~= zeros(1,length(A)))
+        A_CR0 = [A_CR0; A_CR0_1(i,:)];
+        b_CR0 = [b_CR0; b_CR0_1(i,:)];
+    end
+end
+for i = 1:size(A_CR0_2,1)
+    if (A_CR0_2(i,:) ~= zeros(1,length(A)))
+        A_CR0 = [A_CR0; A_CR0_2(i,:)];
+        b_CR0 = [b_CR0; b_CR0_2(i,:)];
+    end
+end
+%Adição da restrição do espaço
+A_CR0 = [A_CR0 ; A_espaco]
+b_CR0 = [b_CR0 ; b_espaco]
+
+A_CR1 = [-A_CR0(1,:); A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
+b_CR1 = [-b_CR0(1,:); b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
+
+A_CR2 = [A_CR0(1,:); -A_CR0(2,:); A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
+b_CR2 = [b_CR0(1,:); -b_CR0(2,:); b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
+
+A_CR3 = [-A_CR0(2,:); A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
+b_CR3 = [-b_CR0(2,:); b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
 
 figure(1)
-plotregion(-A_plot,-b_plot)
-
-%%
-figure(4)
-%A_plot_2 = [3.4155 -4.6452; -0.1044 -0.1215; -0.1559 -0.0922; 1 0; 0 1]%; 1 1];
-%b_plot_2 = [2.6341; -0.0353;-0.0267; 1.5; 1.5 ]%; -3];
-A_plot_2 = [A_plot;  1 0; 0 1];
-B_plot_2 = [b_plot; 1.5;1.5];
+plotregion(-A_CR0,-b_CR0)
 hold on
+plotregion(-A_CR1,-b_CR1)
+plotregion(-A_CR2,-b_CR2)
+%plotregion(-A_CR3,-b_CR3)
 grid
-
-plotregion(-A_plot_2,-b_plot_2)
-
-
-%figure(3)
-A_plot_R1 = [-5.922 -6.8883; 5.9220 6.8883; -1.5379 6.8291; 1.5379 -6.8291];
-b_plot_R1 = 2*ones(4,1);
-plotregion(-A_plot_R1,-b_plot_R1)
 xlim([-1.5 1.5])
 ylim([-1.5 1.5])
 
-figure(2)
-A_plot_R24 = [-3.4155  4.6452;  0.1044 0.1215; 0.1559 0.0922];
-b_plot_R24 = [2.6341; -0.0353; -0.0267];
-plotregion(-A_plot_R24,-b_plot_R24)
-hold on
-A_plot_R6 = [-6.4159 -4.6953; -0.275 0.1220; 6.4159 4.6953];
-b_plot_R6 = [1.3577; -0.0357; 2.6423];
-plotregion(-A_plot_R6,-b_plot_R6)
 
-plotregion(A_plot_R6,-b_plot_R6)
-xlim([-1.5 1.5])
-ylim([-1.5 1.5])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% 
+% figure(1)
+% A_plot = [A_CR0_1(3:4,:); A_CR0_2];
+% b_plot = [b_CR0_1(3:4,:); b_CR0_2];
+% %A_plot_2 = [3.4155 -4.6452; -0.1044 -0.1215; -0.1559 -0.0922; 1 0; 0 1]%; 1 1];
+% %b_plot_2 = [2.6341; -0.0353;-0.0267; 1.5; 1.5 ]%; -3];
+% A_plot_2 = [A_plot;  1 0; 0 1; -1 0; 0 -1];
+% b_plot_2 = [b_plot; 1.5;1.5; 1.5 ; 1.5];
+% grid
+% plotregion(-A_plot,-b_plot)
+% hold on
+% 
+% plotregion(-A_plot_2,-b_plot_2)
+% 
+% A_plot_R1 = [-5.922 -6.8883; 5.9220 6.8883; -1.5379 6.8291; 1.5379 -6.8291];
+% b_plot_R1 = 2*ones(4,1);
+% plotregion(-A_plot_R1,-b_plot_R1)
+% 
+% xlim([-1.5 1.5])
+% ylim([-1.5 1.5])
+
+
+
+
+
+
+
+% %figure(3)
+% A_plot_R1 = [-5.922 -6.8883; 5.9220 6.8883; -1.5379 6.8291; 1.5379 -6.8291];
+% b_plot_R1 = 2*ones(4,1);
+% plotregion(-A_plot_R1,-b_plot_R1)
+% xlim([-1.5 1.5])
+% ylim([-1.5 1.5])
+% 
+% figure(2)
+% A_plot_R24 = [-3.4155  4.6452;  0.1044 0.1215; 0.1559 0.0922];
+% b_plot_R24 = [2.6341; -0.0353; -0.0267];
+% plotregion(-A_plot_R24,-b_plot_R24)
+% hold on
+% A_plot_R6 = [-6.4159 -4.6953; -0.275 0.1220; 6.4159 4.6953];
+% b_plot_R6 = [1.3577; -0.0357; 2.6423];
+% plotregion(-A_plot_R6,-b_plot_R6)
+% 
+% plotregion(A_plot_R6,-b_plot_R6)
+% xlim([-1.5 1.5])
+% ylim([-1.5 1.5])
 
 % figure(5)
 % V = con2vert(A_plot_R24,b_plot_R24)
@@ -176,38 +251,6 @@ ylim([-1.5 1.5])
 % b_CR0_2 = -inv(G_tio*T)*W_tio
 
 
-%% Obtenção da Região Critica
-% %G_tio = sym('G', [Ny*Nu Nu])
-% S_tio = sym('S', [Ny*length(A) length(A)])
-% W_tio = sym('W', [Ny*Nu 1])
-% solG = zeros(Ny*Nu,Nu);
-% solS = zeros(Ny*length(A),length(A));
-% solW = zeros(Ny*Nu,1); 
-% eq1 = [G*z0 - S_tio*x_inicial - W_tio == 0 ];
-% %   eq2 = [inv(H)*G_tio'*inv(G_tio*inv(H)*G_tio')*(W_tio + S_tio*x_inicial)]    ; 
-% hue = solve(eq1,[S_tio W_tio],'ReturnConditions', true)
-% 
+%% Participação das outras regiões
 
-% %%
-% % G_tio = sdpvar(Ny*Nu,,Nu,'full')
-% % S_tio = sdpvar(Ny*length(A), length(A), 'full')
-% % W_tio = sdpvar(Ny*Nu,1,'full');
-% % 
-% % LMIs = [];
-% % LMIs = [LMIs, G_tio*z0 - S_tio*x_inicial - W_tio == 0]
-% % LMIs = [LMIs, W + S*x_inicial - G*inv(H)*G_tio'*inv(G_tio*inv(H)*G_tio')*(W_tio + S_tio*x_inicial) >= 0]
-% % LMIs = [LMIs, -inv(G_tio*inv(H)*G_tio')*(W_tio + S_tio*x_inicial) >= 0]
-% 
-% %%
-% 
-% 
-% % G_tio   = sdpvar(Ny*Nu,Nu,'full');
-% % S_tio   = sdpvar(Ny*length(A),length(A));
-% % W_tio   = sdpvar(Ny*Nu,1);
-% % 
-% % EQUALITY = [ G_tio*z0 - S_tio*x0 - W_tio == 0];
-% 
-% 
-% 
-% 
-% %% Participação das outras regiões
+
