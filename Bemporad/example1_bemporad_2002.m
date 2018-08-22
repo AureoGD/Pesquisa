@@ -1,4 +1,5 @@
 clear all
+close all
 clc
 
 A = [0.7326 -0.0861;
@@ -52,6 +53,11 @@ W = [Umax; -Umin; Umax; -Umin]
 
 E = zeros(Nc*Nu,Nu)
 
+%Adição da restrição no estado 1.5 < x1,x2 < 1.5
+W = [W; 1.5; 1.5; 1.5; 1.5];
+E = [E; -1 0; 0 -1; 1 0; 0 1];
+G = [G; zeros(4,2)];
+
 %% Obtenção do estado factivel (x_inicial) por Chebychev Ball
 % U       = sdpvar(Nu,1,'full') %Cria o vetor das ações de controle
 % x0      = sdpvar(length(A),'full') %Cria o vetor dos estado
@@ -92,7 +98,7 @@ lambda0 = (-inv(H)*G')\z0
 
 tol = 10e-6;
 index = [];
-for i = 1:(Nc*Nu)
+for i = 1:length(W)%(Nc*Nu)
     if ((G(i,:)*z0 - W(i,:) - S(i,:)*x_inicial < tol) && (double(G(i,:)*z0 - W(i,:) - S(i,:)*x_inicial)> -tol))
         index = [index , i];
         G(i,:)*z0 - W(i,:) - S(i,:)*x_inicial
@@ -113,7 +119,7 @@ end
 
 T = (inv(H)*G_tio'*inv(G_tio*inv(H)*G_tio'));
 
-%Inequações que descrição a região CR0 pelas inequações que garantem a
+%Inequações que descrevem a região CR0 pelas inequações que garantem a
 %resposta ótima
 A_CR0_1 = G*T*S_tio-S
 b_CR0_1 = W - G*T*W_tio
@@ -121,68 +127,156 @@ A_CR0_2 = inv(G_tio*inv(H)*G_tio')*S_tio
 b_CR0_2 = -inv(G_tio*inv(H)*G_tio')*W_tio
 
 %Restrição do tamanho dos estado -1.5 <= x1,x2 <= 1.5
-A_espaco = [1 0; 0 1; -1 0; 0 -1];
-b_espaco = [1.5; 1.5; 1.5; 1.5];
+% A_espaco = [1 0; 0 1; -1 0; 0 -1];
+% b_espaco = [1.5; 1.5; 1.5; 1.5];
 
 A_CR0 = [];
 b_CR0 = [];
 for i = 1:size(A_CR0_1,1)
-    if (A_CR0_1(i,:) ~= zeros(1,length(A)))
+    %if (A_CR0_1(i,:) ~= zeros(1,length(A)))
+    if ((A_CR0_1(i,1) ~= 0) || (A_CR0_1(i,2) ~= 0))
         A_CR0 = [A_CR0; A_CR0_1(i,:)];
         b_CR0 = [b_CR0; b_CR0_1(i,:)];
     end
+    i
 end
 for i = 1:size(A_CR0_2,1)
-    if (A_CR0_2(i,:) ~= zeros(1,length(A)))
+    %if (A_CR0_2(i,:) ~= zeros(1,length(A)))
+    if ((A_CR0_2(i,1) ~= 0) || (A_CR0_2(i,2) ~= 0))
         A_CR0 = [A_CR0; A_CR0_2(i,:)];
         b_CR0 = [b_CR0; b_CR0_2(i,:)];
     end
 end
 %Adição da restrição do espaço
-A_CR0 = [A_CR0 ; A_espaco]
-b_CR0 = [b_CR0 ; b_espaco]
+% A_CR0 = [A_CR0 ; A_espaco]
+% b_CR0 = [b_CR0 ; b_espaco]
 
-A_CR1 = [-A_CR0(1,:); A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
-b_CR1 = [-b_CR0(1,:); b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
+A_CR1 = [-A_CR0(1,:); A_CR0(3:6,:)]%;A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
+b_CR1 = [-b_CR0(1,:); b_CR0(3:6,:)]%;b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
 
-A_CR2 = [A_CR0(1,:); -A_CR0(2,:); A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
-b_CR2 = [b_CR0(1,:); -b_CR0(2,:); b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
+A_CR2 = [A_CR0(1,:); -A_CR0(2,:); A_CR0(3:6,:); ]%A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
+b_CR2 = [b_CR0(1,:); -b_CR0(2,:); b_CR0(3:6,:); ]%b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
 
-A_CR3 = [-A_CR0(2,:); A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
-b_CR3 = [-b_CR0(2,:); b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
+A_CR3 = [A_CR0(1:6,:); -A_CR0(7,:)];% A_CR0(4:7,:); ]%A_CR0((size(A_CR0,1)-3):size(A_CR0,1),:)];
+b_CR3 = [b_CR0(1:6,:); -b_CR0(7,:)];% b_CR0(4:7,:); ]%b_CR0((size(b_CR0,1)-3):size(b_CR0,1),:)];
 
 figure(1)
 plotregion(-A_CR0,-b_CR0)
 hold on
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
+%%
 plotregion(-A_CR1,-b_CR1)
+%%
 plotregion(-A_CR2,-b_CR2)
-%plotregion(-A_CR3,-b_CR3)
+%%
+plotregion(-A_CR3,-b_CR3)
 grid
 xlim([-1.5 1.5])
 ylim([-1.5 1.5])
 
 
+% --------------- Até aqui ok ----------------------------------------
+
+%% Partição das novas regiões
+
+z_CR1  = sdpvar(Nu,1,'full');
+x_CR1  = sdpvar(length(A),1,'full');
+epsilon_CR1 = sdpvar(1,1,'full');
+
+LMI = [];
+LMI = [LMI, (-G*z_CR1 + W + S*x_CR1) >= 0 ];
+LMI = [LMI, (-A_CR1(1,:)*x_CR1 - epsilon_CR1*norm(A_CR1(1,:)) + b_CR1(1,:)) >= 0];
+
+objetivo = -epsilon_CR1;
+options = sdpsettings;
+options.solver = 'sedumi';
+
+teste_CR1 = solvesdp(LMI,objetivo,options);
+
+z0_CR1 = double(z_CR1);
+x0_CR1 = double(x_CR1);
+
+index_R1 = [];
+for i = 1:(Nc*Nu)
+    if ((G(i,:)*z0_CR1 - W(i,:) - S(i,:)*x0_CR1 < tol) && (double(G(i,:)*z0_CR1 - W(i,:) - S(i,:)*x0_CR1)> -tol))
+        index_R1 = [index_R1 , i];
+    end
+end
+G_tio_CR1 = [];
+S_tio_CR1 = [];
+W_tio_CR1 = [];
+
+if (length(index_R1)>0)
+    for i = 1:length(index_R1)
+        G_tio_CR1 = [G_tio; G(index_R1(i),:)];
+        S_tio_CR1 = [S_tio; S(index_R1(i),:)];
+        W_tio_CR1 = [W_tio; W(index_R1(i),:)];
+    end
+end
+
+T = (inv(H)*G_tio_CR1'*inv(G_tio_CR1*inv(H)*G_tio_CR1'));
+
+%Inequações que descrição a região CR0 pelas inequações que garantem a
+%resposta ótima
+A_CR1_1 = G*T*S_tio_CR1-S
+b_CR1_1 = W - G*T*W_tio_CR1
+A_CR1_2 = inv(G_tio_CR1*inv(H)*G_tio_CR1')*S_tio_CR1
+b_CR1_2 = -inv(G_tio_CR1*inv(H)*G_tio_CR1')*W_tio_CR1
+
+A_CR1_NOVO = [];
+b_CR1_NOVO = [];
+for i = 1:size(A_CR0_1,1)
+    if (A_CR1_1(i,:) ~= zeros(1,length(A)))
+        A_CR1_NOVO = [A_CR1_NOVO; A_CR1_1(i,:)];
+        b_CR1_NOVO = [b_CR1_NOVO; b_CR1_1(i,:)];
+    end
+end
+for i = 1:size(A_CR1_2,1)
+    if (A_CR1_2(i,:) ~= zeros(1,length(A)))
+        A_CR1_NOVO = [A_CR1_NOVO; A_CR1_2(i,:)];
+        b_CR1_NOVO = [b_CR1_NOVO; b_CR1_2(i,:)];
+    end
+end
+
+
+%%
+A_CR1_NOVO = [A_CR1_NOVO(3:4,:); A_espaco];
+b_CR1_NOVO = [b_CR1_NOVO(3:4,:); b_espaco];
+
+figure(2)
+plotregion(-A_CR1_NOVO,-b_CR1_NOVO)
 
 
 
+%%
+z_sao_thomeh = sdpvar(Nu,1,'full');
 
+x0_xunxo = [0.5; 2]*10^5;
+LMI = [];
+LMI = [LMI, -G*z_sao_thomeh + W + S*x0_xunxo >= 0 ];
 
+objetivo = 0.5*z_sao_thomeh'*H*z_sao_thomeh;
+options = sdpsettings;
+options.solver = 'sedumi';
+%options.solver = 'sdpt3';
 
+teste_sao_thomeh = solvesdp(LMI,objetivo,options);
 
+U_sao_thomeh = double(z_sao_thomeh) - inv(H)*F'*x0_xunxo  
+U_CR1 = double(z0_CR1 - inv(H)*F'*x0_xunxo)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+figure(5)
+viscircles(x0_xunxo', double(epsilon_CR1))
+hold on
+A_XUNXO_espaco = [1 0; 0 1; -1 0; 0 -1];
+b_XUNXO_espaco = [3*10^5; 3*10^5; 3*10^5; 3*10^5];
+A_CR1_XUNXO = [A_CR1_NOVO(1:2,:); A_XUNXO_espaco ];
+b_CR1_XUNXO = [b_CR1_NOVO(1:2,:); b_XUNXO_espaco ];
+plotregion(-A_CR1_XUNXO,-b_CR1_XUNXO)
+xlim([-Inf Inf])
+ylim([-Inf Inf])
+grid
 
 % 
 % figure(1)
