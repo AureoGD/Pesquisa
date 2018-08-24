@@ -61,21 +61,8 @@ G = [G; zeros(4,2)];
 
 
 %% Calculo z0
-U       = sdpvar(Nu,1,'full'); %Cria o vetor das ações de controle
-
-z = U + inv(H)*F'*x_inicial; 
 S = E + G*inv(H)*F';
-
-LMI = [];
-LMI = [LMI, -G*z + W + S*x_inicial >= 0 ];
-
-objetivo = 0.5*z'*H*z;
-options = sdpsettings;
-options.solver = 'sedumi';
-%options.solver = 'sdpt3';
-
-teste = solvesdp(LMI,objetivo,options);
-z0 = double(z)
+z0 = optimal_z_mp_QP( G, W, S, H, F, x_inicial, Nu);
 
 %% Obtenção G_tio, W_tio e S_tio de CR0
 
@@ -83,6 +70,9 @@ tol = 10e-6;
 [G_tio, W_tio, S_tio] = verify_active_constraints(G, W, S, x_inicial, z0, tol)
 
 [A_CR0 b_CR0] = define_region(G, W, S, G_tio, W_tio, S_tio, H)
+
+Regions{1,1} = A_CR0;
+Regions{1,2} = b_CR0;
 
 plotregion(-A_CR0,-b_CR0)
 hold on
@@ -92,7 +82,20 @@ hold on
 % plotregion(-A_CR1,-b_CR1)
 
 Nx = 4          %Quantidade de linhas que descrevem a restrição no espaço
-CR0_rest = partition_region( A_CR0, b_CR0, Nx)
+CRrest = partition_region( A_CR0, b_CR0, Nx)
+
+Regions = {Regions ; CRrest};
+
+
+
+for i = 1:10
+    CRrest = partition_region( Regions{i,1}, Regions{1,2}, Nx)
+    
+end
+
+
+
+
 
 for i = 1:3
     plotregion(-CR0_rest{i,1},-CR0_rest{i,2})
@@ -103,31 +106,7 @@ ylim([-1.5 1.5])
 
 
 %% Chebyshev ball
-xc = sdpvar(2,1);
-r = sdpvar(1);
-optimize(CR0_rest{1,1}*xc+r*sqrt(sum(CR0_rest{1,1}.^2,2)) <= CR0_rest{1,2},-r)
-xc = double(xc);
-plot(xc(1),xc(2), '*')
-viscircles(xc',double(r))
-
-xc = sdpvar(2,1);
-r = sdpvar(1);
-optimize(CR0_rest{2,1}*xc+r*sqrt(sum(CR0_rest{2,1}.^2,2)) <= CR0_rest{2,2},-r)
-xc = double(xc);
-plot(xc(1),xc(2), '*')
-viscircles(xc',double(r))
-
-xc = sdpvar(2,1);
-r = sdpvar(1);
-optimize(CR0_rest{3,1}*xc+r*sqrt(sum(CR0_rest{3,1}.^2,2)) <= CR0_rest{3,2},-r)
-xc = double(xc)
-plot(xc(1),xc(2), '*')
-viscircles(xc',double(r))
 
 
-
-
-
-
-
-
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
