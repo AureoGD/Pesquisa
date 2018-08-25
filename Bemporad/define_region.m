@@ -1,4 +1,4 @@
-function [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H )
+function [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol)
 %Find the LMI tDefine critical region
 %   Detailed explanation goes here
 
@@ -15,7 +15,7 @@ function [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H )
         flag = 0;
         
         for j = 1:size(A_2,2) 
-            if(A_2(i,j) ~= 0)
+            if(A_2(i,j) > tol || A_2(i,j) < -tol )
                 flag = 1;
             end   
         end
@@ -31,7 +31,7 @@ function [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H )
         flag = 0;
         
         for j = 1:size(A_1,2) 
-            if(A_1(i,j) ~= 0)
+            if(A_1(i,j) > tol || A_1(i,j) < -tol )
                 flag = 1;
             end   
         end
@@ -42,5 +42,6 @@ function [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H )
         end
    
     end
+    
 end
 
