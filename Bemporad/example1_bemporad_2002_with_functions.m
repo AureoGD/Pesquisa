@@ -82,19 +82,7 @@ hold on
 % plotregion(-A_CR1,-b_CR1)
 
 Nx = 4          %Quantidade de linhas que descrevem a restrição no espaço
-CRrest = partition_region( A_CR0, b_CR0, Nx)
-
-Regions = {Regions ; CRrest};
-
-
-
-for i = 1:10
-    CRrest = partition_region( Regions{i,1}, Regions{1,2}, Nx)
-    
-end
-
-
-
+CRrest = rest_region( A_CR0, b_CR0, Nx)
 
 
 for i = 1:3
@@ -103,6 +91,30 @@ end
 
 xlim([-1.5 1.5])
 ylim([-1.5 1.5])
+%%
+%Regions = {Regions ; CRrest};
+%%
+
+% for i = 1:10
+%     CRrest = partition_region( Regions{i,1}, Regions{1,2}, Nx)
+%     
+% end
+
+tol = 10e-6
+for i = 1:Nr
+       [xc , r] = chebychev_ball( CRest{i,1}, CRest{i,2} );
+       if r > 0
+               [ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);
+               [ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol);
+               [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H );
+               CRest = rest_region( A, b, Nx)
+               
+       else
+           Regions = {Regions; CRest{i,1}; CRest{i,2}};
+       end
+        
+end
+
 
 
 %% Chebyshev ball
