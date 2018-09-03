@@ -79,9 +79,123 @@ Regions{1,2} = b_CR0;
 % b_CR1 = [b_CR0(1,:); -b_CR0(2,:); b_CR0(3:length(b_CR0),:)];    
 % plotregion(-A_CR1,-b_CR1)
 
+%%
+out_X{1,1} = [1 0; 0 1; -1 0; 0 -1];
+out_X{1,2} = [1.5; 1.5; 1.5; 1.5];
+i=1;
 Nx = 4          %Quantidade de linhas que descrevem a restrição no espaço
-CR0_rest = rest_region( A_CR0, b_CR0, Nx,{});
+CR0_rest = rest_region( A_CR0, b_CR0, Nx, out_X);
+%%
+figure(1)
+for i = 1:3
+     plotregion(-CR0_rest{i,1},-CR0_rest{i,2}) 
+     hold on
+end
 
+plotregion(- A_CR0,-b_CR0) 
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
+%%
+
+for i= 1:3
+    
+    REGIONS_CR0_1 = partition_region({CR0_rest{i,:}}, G, W, S, H, F, Nu, Nx, tol, 1)
+    %figure(i+4)
+
+    for i = 1:size(REGIONS_CR0_1,1)
+        figure
+        plotregion(-double(REGIONS_CR0_1{i,1}),-double(REGIONS_CR0_1{i,2})) 
+        hold on
+        xlim([-1.5 1.5])
+        ylim([-1.5 1.5])
+    end
+end
+%%
+%%
+for i=1:3
+    CRi_rest = CR0_rest;
+    [xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2}, G, W, S, H, F );
+    r
+    hold on
+    viscircles(xc',r)
+    plot(xc(1),xc(2),'*')
+end
+%%
+i=1;
+CRi_rest = CR0_rest;
+[xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2}, G, W, S, H, F );
+r
+[ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);
+[ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol);
+[ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol );
+CRest = rest_region( A, b, Nx, {CRi_rest{i,:}});
+
+%%
+for i = 1:3
+     plotregion(-CRest{i,1},-CRest{i,2}) 
+     hold on
+end
+%%
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
+
+%%
+i=2;
+CRi_rest = CR0_rest;
+[xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2}, G, W, S, H, F );
+[ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);
+[ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol)
+[ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol );
+CRest = rest_region( A, b, Nx, {CRi_rest{i,:}});
+
+%%
+figure(1)
+for i = 1:2
+     plotregion(-CRest{i,1},-CRest{i,2}) 
+     hold on
+end
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
+
+
+%%
+i=3;
+CRi_rest = CR0_rest;
+[xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2}, G, W, S, H, F );
+[ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);
+[ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol)
+[ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol );
+CRest = rest_region( A, b, Nx, {CRi_rest{i,:}});
+
+%%
+figure(1)
+for i = 1:2
+     plotregion(-CRest{i,1},-CRest{i,2}) 
+     hold on
+end
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
+
+
+
+
+
+
+
+
+
+%%
+
+i=1
+CR0_rest = rest_region( A_CR0, b_CR0, Nx, out_X);
+
+[xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2} );
+[ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);
+[ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol)
+[ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol );
+CRest = rest_region( A, b, Nx, {CRi_rest{i,:}});
+
+%%
 
 % for i = 1:3
 %     plotregion(-CR0_rest{i,1},-CR0_rest{i,2})
@@ -89,12 +203,19 @@ CR0_rest = rest_region( A_CR0, b_CR0, Nx,{});
 
 %xlim([-1.5 1.5])
 %ylim([-1.5 1.5])
-%%
-tol = 10e-6
-hue_areas = partition_region( CR0_rest, G, W, S, H, F, Nu, Nx, tol, 1, {} )
-
-
-hueplot = [Regions; hue_areas]
+% %%
+% tol = 10e-6
+% hue_areas = partition_region( CR0_rest, G, W, S, H, F, Nu, Nx, tol, 1)%, out_X )
+% 
+% 
+% hueplot = [Regions; hue_areas]
+% 
+% %%
+% i=17;
+% plotregion(-hueplot{i,1},-hueplot{i,2})
+% hold on
+% xlim([-1.5 1.5])
+% ylim([-1.5 1.5]) 
 
 %%
 for i = 1:size(hueplot,1)

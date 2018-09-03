@@ -1,20 +1,24 @@
-function [ Regions ] = partition_region( CRi_rest, G, W, S, H, F, Nu, Nx, tol, max, out_region )
+function [ Regions ] = partition_region( CRi_rest, G, W, S, H, F, Nu, Nx, tol, max)%, out_region )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     
     Regions = {};
     Nr = size(CRi_rest,1)
     for i = 1:Nr
-        [xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2} );
+        [xc , r] = chebychev_ball( CRi_rest{i,1}, CRi_rest{i,2}, G, W, S, H, F);
         xc;
-        r;
+        r
         if (r > 0 && max < 3)
             [ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);
-            [ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol);
+            [ G_tio, W_tio, S_tio ] = verify_active_constraints(G, W, S, xc, z0, tol)
             [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol );
-            CRest = rest_region( A, b, Nx, out_region)
-            new_regions = partition_region(CRest, G, W, S, H, F, Nu, Nx, tol, max, {CRi_rest{i,:}});
-            Regions = [Regions; new_regions];
+            CRest = rest_region( A, b, Nx, {CRi_rest{i,:}});
+            %Regions = {Regions; CRest};
+            Regions{1,1} = A;
+            Regions{1,2} = b;
+            Regions = [Regions; {CRi_rest{i,:}}];
+            %new_regions = partition_region(CRest, G, W, S, H, F, Nu, Nx, tol, max+1);%, {CRi_rest{i,:}});
+            %Regions = [Regions; new_regions];
         else
             Regions = [Regions; {CRi_rest{i,:}}];
         end

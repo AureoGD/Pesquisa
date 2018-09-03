@@ -1,9 +1,9 @@
-function [ xc , r, z0] = chebychev_ball( A, b, G, W, S, H, F )
+function [ xc , r, diagnostics] = chebychev_ball( A, b, G, W, S, H, F )
 %Return the center of the largest possible ball that can be placed inside
 %the region defined by Ax<=b.
     
 
-    xc = sdpvar(2,1);
+    xc = sdpvar(2,1,'full');
     r = sdpvar(1);
     %U = sdpvar(2,1,'full'); 
     z = sdpvar(2,1,'full'); 
@@ -17,10 +17,9 @@ function [ xc , r, z0] = chebychev_ball( A, b, G, W, S, H, F )
 
     options=sdpsettings;
     options.solver='sedumi';
-    solvesdp(LMI,-r,options);
+    diagnostics = optimize(LMI,-r,options);
     xc = double(xc);
     r = double(r);
-    z0 = double(z);
 
 end
 

@@ -2,7 +2,7 @@ function [ CRest ] = rest_region( A, b, Nx, out_region )
 %Partition CRest region from the CR0 matrices. Nx is the number of
 %constraints that define the space.
     
-    Nr = size(A,1);% - Nx
+    Nr = size(A,1) - Nx;%- size(out_region,1);
     %A_CRest{1:Nr,1} = A(1:(size(A,1)-Nr),:);
     
     %b_CRest =0;
@@ -22,11 +22,11 @@ function [ CRest ] = rest_region( A, b, Nx, out_region )
         %A_CRest{i} = [A_CRest{i}; -A(i,:); A((size(A,1)-Nx+1:size(A,1)),:)];
         CRest{i,1} = [CRest{i,1}; -A(i,:)];%; A((size(A,1)-Nx+1:size(A,1)),:)];
         CRest{i,2} = [CRest{i,2}; -b(i,:)]; %; b((size(A,1)-Nx+1:size(A,1)),:)];
-      
-    if isempty(out_region) == 0
-        CRest{i,1} = [CRest{i,1}; out_region{1,1}];
-        CRest{i,2} = [CRest{i,2}; out_region{1,2}];
-    end
+
+        if isempty(out_region) == 0
+            CRest{i,1} = [CRest{i,1}; out_region{1,1}];
+            CRest{i,2} = [CRest{i,2}; out_region{1,2}];
+        end
     end
 end
 
