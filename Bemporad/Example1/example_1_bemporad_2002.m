@@ -1,8 +1,6 @@
 clear all
 close all
 clc
-figure(1)
-hold on
 
 %System from Example 1 Bemporad 2002
 A = [0.7326 -0.0861;
@@ -63,8 +61,8 @@ G = [G; zeros(4,2)];
 %%Criação de CR0 e primeira divisão das areas
 %% Calculo z0
 S = E + G*inv(H)*F';
-z0 = optimal_z_mp_QP( G, W, S, H, F, x_inicial, Nu);
-
+z0 = optimal_z_mp_QP( G, W, S, H, F, x_inicial, Nu)
+%z0 = fcnKKT(H, F, G, E, W, x_inicial)
 %% Obtenção G_tio, W_tio e S_tio de CR0
 
 tol = 1e-8;
@@ -80,8 +78,8 @@ out_X{1,2} = [1.5; 1.5; 1.5; 1.5];
 i=1;
 Nx = 4;          %Quantidade de linhas que descrevem a restrição no espaço
 %%
-CR0_rest = new_rest_regions( A_CR0, b_CR0, out_X, out_X);
-
+%CR0_rest = new_rest_regions( A_CR0, b_CR0, out_X, out_X);
+CR0_rest = find_rest_regions(A_CR0,b_CR0,out_X);
 %%
 plotregion(-A_CR0,-b_CR0)
 hold on
@@ -94,72 +92,16 @@ ylim([-1.5 1.5])
 %%
 figure(4)
 hold on
-new_Regions = partition_rest_regions(CR0_rest, G, W, S, H, F, tol, Nu,out_X, 1);
+new_Regions = partition_rest_regions(CR0_rest, G, W, S, H, E, F, tol, Nu,out_X, 1);
 xlim([-1.5 1.5])
 ylim([-1.5 1.5])
 %%
-i=1;
-Rest_regions = CR0_rest;
- %for i = 1:size(Rest_regions,1)
-        A = Rest_regions{i,1};
-        b = Rest_regions{i,2};
-        [ xc , r] = chebychev_ball( A, b, G, W, S, H, F );  %Find epsilon and x0
-        plot(xc(1),xc(2),'*')
-        %%
-%         if r <= 1.0000e-05
-%              Regions = [Regions; {Rest_regions{i,:}}];
-%         else
-            [ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);  % Find z0
-            [G_tio W_tio S_tio] = verify_active_constraints(G, W, S, xc, z0, tol); %Find G_tio, W_tio e S_tio
-            %Define U(x)
-            [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol) %Define polyhedron
-            %%
-            CR = {A b}
-            Regions = [Regions; CR];
-            i=1;
-            %%
-            nr = size(Rest_regions{i,1},1)
-            Rest_CR = new_rest_regions(A,b,{Rest_regions{i,:}}, Nx+nr);
-           
-            %%
-            Rest_regions = Rest_CR;
- %for i = 1:size(Rest_regions,1)
-        A = Rest_regions{i,1};
-        b = Rest_regions{i,2};
-        [ xc , r] = chebychev_ball( A, b, G, W, S, H, F );  %Find epsilon and x0
-        plot(xc(1),xc(2),'*')
-        %%
-%         if r <= 1.0000e-05
-%              Regions = [Regions; {Rest_regions{i,:}}];
-%         else
-            [ z0 ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);  % Find z0
-            [G_tio W_tio S_tio] = verify_active_constraints(G, W, S, xc, z0, tol); %Find G_tio, W_tio e S_tio
-            %Define U(x)
-            [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol) %Define polyhedron
-            %%
-            CR = {A b}
-            Regions = [Regions; CR];
-            i=1;
-            %%
-            nr = size(Rest_regions{i,1},1)
-            Rest_CR = new_rest_regions(A,b,{Rest_regions{i,:}}, Nx+nr);
-
-            
-            
-            %%
-            Nr = size(Rest_regions{i,1},1);
-            partition_rest_regions(Rest_CR, G, W, S, H, F, tol, Nu, Nr);
-%        end
-   % end
-   
-   
-   
-
-
-
-
-
-
-
-
-
+figure
+for i=1:size(new_Regions,1)
+    plotregion(-new_Regions{i,1},-new_Regions{i,2}) 
+    xlim([-1.5 1.5])
+    ylim([-1.5 1.5])
+end
+plotregion(-A_CR0,-b_CR0)
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
