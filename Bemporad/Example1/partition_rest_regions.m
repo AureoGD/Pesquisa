@@ -8,11 +8,7 @@ function [ Regions ] = partition_rest_regions( Rest_regions, G, W, S, H, E, F, t
         [ xc , r, diagnostics] = chebychev_ball( A, b, G, W, S, H, F );  %Find epsilon and x0
         %plot(xc(1),xc(2),'*')
         
-        if ((r <= 0.1))
-            %figure(4)
-            %hold on
-             %Regions = [Regions; {Rest_regions{i,:}} max];
-        elseif (isnan(r) || isnan(xc(1)) || (diagnostics.problem==1))
+        if (r <= 0.1 || isnan(r) || isnan(xc(1)) || (diagnostics.problem==1))
              %Regions = [Regions; {Rest_regions{i,:}} max];
              %plotregion(-A, -b)
         %elseif max>2    
@@ -28,17 +24,19 @@ function [ Regions ] = partition_rest_regions( Rest_regions, G, W, S, H, E, F, t
             end
             %Define U(x)
             if isempty(G_tio) == 1
-                Regions = [Regions; {Rest_regions{i,:}} max];
+                Kx = (-inv(H)*F');
+                Regions = [Regions; {Rest_regions{i,:}} Kx(1,:) 0];
                 x_lqr = xc;
                 %plotregion(-A, -b)
                     
             elseif rank(G_tio) < size(G_tio,1)
-                Regions = [Regions; {Rest_regions{i,:}} 20];
+                %Regions = [Regions; {Rest_regions{i,:}} 20];
             else
-                [ A, b ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol); %Define polyhedron
+                [A, b] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol); %Define polyhedron
+                [Kx, Ku] = define_control(G, W, S, G_tio, W_tio, S_tio, H, F);
                 [A, b] = remove_redundant_constraints(A,b);
-                CR = {A b};
-                Regions = [Regions; CR 10];
+                CR = {A b Kx Ku};
+                Regions = [Regions; CR];
                 
                 %plotregion(-A, -b)
                 
