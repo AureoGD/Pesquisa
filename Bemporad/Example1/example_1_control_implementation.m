@@ -6,7 +6,7 @@ C = [0 1.4142];
 
 x = zeros(2,50);
 y = zeros(50,1);
-x(:,1) = [1 1]'; 
+x(:,1) = [1.2 -1.4]'; 
 for i = 1:50
    
     for j = 1:size(Regions,1)
@@ -22,14 +22,16 @@ for i = 1:50
             index = j;
         end
     end
-    u(i) = Regions{index,3}*x(:,i) + Regions{index,4}
+    u(i) = Regions{index,3}*x(:,i) + Regions{index,4};
 %     A*x(:,i)
 %     B*u
-    x(:,i+1) = A*x(:,i)+B*u(i);
+    x(:,i+1) = A*x(:,i)+B*u(i)+0.02*[rand(1) ; rand(1) ];
     y(i) = C*x(:,i); 
 
 end
 
+% close(10)
+% close(11)
 figure(10)
 stairs(x(1,:))
 hold on

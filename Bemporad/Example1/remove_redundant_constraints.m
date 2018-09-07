@@ -1,6 +1,16 @@
-function [ A_new, b_new ] = remove_redundant_constraints( A, b )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [A_new, b_new] = remove_redundant_constraints(A, b)
+%[A_new, b_new] = remove_redundant_constraints(A, b)
+%
+%Remove the redundant constraints of a polyehdral defined by Ax<=b.
+%Inputs:
+%       A, b - matrices that may contain redundant constraints
+%
+%Outputs:
+%       A_new, b_new - matrices without redundant constraints
+%
+%Algoritm based on the paper "The explicit linear quadratic regulator for
+%constrained systems" by A. Bemporad, M. Morari, V. Dua, and E. Pistikopoulos. 
+
     index = [];
       
     for i=1:size(A,1)
@@ -31,7 +41,7 @@ function [ A_new, b_new ] = remove_redundant_constraints( A, b )
     
     A_new = A;
     b_new = b;
-    index
+    index;
     for k = 1:size(index,2)
         A_new(index(k)-k+1,:) = [];
         b_new(index(k)-k+1,:) = [];

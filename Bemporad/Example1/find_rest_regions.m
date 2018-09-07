@@ -1,10 +1,21 @@
-function [ CRest ] = find_rest_regions( A, b, out_region )
-%UNTITLED2 Summary of this function goes here
-  %Detailed explanation goes here
-    A_Ri_rest = [];
-    b_Ri_rest = [];
-    %CRest = {};
-    Nx = 0;
+function [CRest] = find_rest_regions(A, b, out_region)
+%[CRest] = find_rest_regions(A, b, out_region)
+%Find the rest regions from the polyehdral defined by Ax<=b inside an region.
+%Inputs:
+%       A, b - matrices that define the polyhedral Ax <= b
+%
+%       out_region - describes the limits of the regions, i.e. it is the 
+%                    state constraints when creating the CR0
+%
+%Outputs:
+%        CRest - a cell array with the N new rest regions, the first column
+%                of the ith row is the Ai and the second column is the bi
+%                from the ith region.
+%
+%Algoritm based on the paper "The explicit linear quadratic regulator for
+%constrained systems" by A. Bemporad, M. Morari, V. Dua, and E. Pistikopoulos. 
+
+Nx = 0;
     for i=1:(size(A,1))
         if (A(i,:) == [1 0])
             Nx= Nx+1; 

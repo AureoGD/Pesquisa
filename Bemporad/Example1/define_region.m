@@ -1,6 +1,18 @@
-function [ A, b, Kx, Kc ] = define_region( G, W, S, G_tio, W_tio, S_tio, H, tol)
-%Find the LMI tDefine critical region
-%   Detailed explanation goes here
+function [A, b] = define_region(G, W, S, G_tio, W_tio, S_tio, H, tol)
+%[A, b] = define_region(G, W, S, G_tio, W_tio, S_tio, H, tol)
+%
+%Find the set of matrices inequalities that define the critical region.
+%Inputs:
+%       G, W and S - from the matrix inequality G*z <= W + S*x(t)
+%
+%       G_tio, W_tio and S_tio - rows of G, W and S corresponding to the active constraints
+%
+%Outputs:
+%       A, b - matrices that define the polyhedral Ax <= b
+%
+%Algoritm based on the paper "The explicit linear quadratic regulator for
+%constrained systems" by A. Bemporad, M. Morari, V. Dua, and E. Pistikopoulos. 
+
 
     T = (inv(H)*G_tio'*inv(G_tio*inv(H)*G_tio'));
     A_1 = G*T*S_tio-S;

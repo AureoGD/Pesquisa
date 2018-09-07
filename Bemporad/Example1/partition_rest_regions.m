@@ -1,18 +1,39 @@
-function [ Regions ] = partition_rest_regions( Rest_regions, G, W, S, H, E, F, tol, Nu, old_out_region, max )
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+function [Regions] = partition_rest_regions(Rest_regions, G, W, S, H, F, tol, Nu, number_partition)
+%[Regions] = partition_rest_regions(Rest_regions, G, W, S, H, F, tol, Nu, number_partition)
+%
+%Partition the rest regions of the CR0.
+%Inputs:
+%       Rest_regions - a cell array with the rest regions, the first column
+%                      of the ith row is the Ai and the second column is the
+%                      bi from the ith region.
+%                     
+%       G, W, S, H and F - from the cost functions: 
+%                          Vz(x) = 0.5*z'*H*z 
+%                                  through z 
+%                                  subject to G*z <= W + S*x(t)
+%
+%       tol - acceptable tolerance in the equation G_tio(i)*z0 = W + S*x0
+%
+%       Nu - control horizon 
+%
+%       number_partition - the number of times that the region was partitioned 
+%
+%Outputs:
+%       Regions - a cell array with the partitioned regions, each row is
+%       composed by four columns: Ai bi Kx Kc
+%
+%Algoritm based on the paper "The explicit linear quadratic regulator for
+%constrained systems" by A. Bemporad, M. Morari, V. Dua, and E. Pistikopoulos. 
+
+
     Regions = {};
     for i = 1:size(Rest_regions,1)
         A = Rest_regions{i,1};
         b = Rest_regions{i,2};
         [ xc , r, diagnostics] = chebychev_ball( A, b, G, W, S, H, F );  %Find epsilon and x0
-        %plot(xc(1),xc(2),'*')
         
         if (r <= 0.1 || isnan(r) || isnan(xc(1)) || (diagnostics.problem==1))
-             %Regions = [Regions; {Rest_regions{i,:}} max];
-             %plotregion(-A, -b)
-        %elseif max>2    
-         %    Regions = [Regions; {Rest_regions{i,:}} 6];
+             
         else
             [ z0, diagnostics ] = optimal_z_mp_QP( G, W, S, H, F, xc, Nu);  % Find z0
             %z0 = fcnKKT(H, F, G, E, W, xc)
@@ -24,10 +45,9 @@ function [ Regions ] = partition_rest_regions( Rest_regions, G, W, S, H, E, F, t
             end
             %Define U(x)
             if isempty(G_tio) == 1
+                %Region that is similar to a LQR
                 Kx = (-inv(H)*F');
                 Regions = [Regions; {Rest_regions{i,:}} Kx(1,:) 0];
-                x_lqr = xc;
-                %plotregion(-A, -b)
                     
             elseif rank(G_tio) < size(G_tio,1)
                 %Regions = [Regions; {Rest_regions{i,:}} 20];
@@ -43,7 +63,7 @@ function [ Regions ] = partition_rest_regions( Rest_regions, G, W, S, H, E, F, t
                 %Rest_CR = new_rest_regions(A,b,{Rest_regions{i,:}}, old_out_region);
                 Rest_CR = find_rest_regions(A,b,{Rest_regions{i,:}});
               
-                new_regions = partition_rest_regions(Rest_CR, G, W, S, H, E, F, tol, Nu, {Rest_regions{i,:}}, max+1);
+                new_regions = partition_rest_regions(Rest_CR, G, W, S, H, F, tol, Nu, number_partition+1);
                 Regions = [Regions; new_regions];
             end
         end

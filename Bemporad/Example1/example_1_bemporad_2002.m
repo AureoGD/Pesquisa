@@ -92,7 +92,7 @@ xlim([-1.5 1.5])
 ylim([-1.5 1.5])
 
 %%
-new_Regions = partition_rest_regions(CR0_rest, G, W, S, H, E, F, tol, Nu,out_X, 1);
+new_Regions = partition_rest_regions(CR0_rest, G, W, S, H, F, tol, Nu, 1);
 Regions = [Regions; new_Regions];
 
 %%
