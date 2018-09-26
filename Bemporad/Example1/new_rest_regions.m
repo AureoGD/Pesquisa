@@ -1,46 +1,46 @@
 function [ CRest ] = new_rest_regions(A,b,out_region, old_out_region)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
-    A_rest = A
-    b_rest = b
+    A_rest = A;
+    b_rest = b;
     A_out = old_out_region{:,1};
     CRest{1,1}=[];
     CRest{1,2}=[];
     Nx = 0;
-    for i=1:(size(A,1))
-        if (A(i,:) == [1 0])
-            Nx= Nx+1; 
-        elseif (A(i,:) == [0 1])
-            Nx= Nx+1; 
-        elseif (A(i,:) == [-1 0])
-            Nx= Nx+1; 
-        elseif (A(i,:) == [0 -1])  
-            Nx= Nx+1;     
-        end
-    end
+%     for i=1:(size(A,1))
+%         if (A(i,:) == [1 0])
+%             Nx= Nx+1; 
+%         elseif (A(i,:) == [0 1])
+%             Nx= Nx+1; 
+%         elseif (A(i,:) == [-1 0])
+%             Nx= Nx+1; 
+%         elseif (A(i,:) == [0 -1])  
+%             Nx= Nx+1;     
+%         end
+%     end
+%     
+%     Nout = 0;
+%     for i=1:(size(A_out,1))
+%         if (A_out(i,:) == [1 0])
+%              
+%         elseif (A_out(i,:) == [0 1])
+%           
+%         elseif (A_out(i,:) == [-1 0])
+%             
+%         elseif (A_out(i,:) == [0 -1])  
+%                
+%         else
+%             Nout = Nout+1;
+%         end
+%     end
     
-    Nout = 0;
-    for i=1:(size(A_out,1))
-        if (A_out(i,:) == [1 0])
-             
-        elseif (A_out(i,:) == [0 1])
-          
-        elseif (A_out(i,:) == [-1 0])
-            
-        elseif (A_out(i,:) == [0 -1])  
-               
-        else
-            Nout = Nout+1;
-        end
-    end
-    
-    Nx
-    Nout
-    Nr = Nout + Nx
-    size(A,1)-Nr
-    A
-    b
-    Nr = Nx
+%     Nx
+%     Nout
+%     Nr = Nout + Nx
+%     size(A,1)-Nr
+%     A
+%     b
+%     Nr = Nx
     
     if (size(A,1)-Nr)>1
         for i= 2:(size(A,1)-Nr)

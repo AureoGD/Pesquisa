@@ -1,5 +1,5 @@
-function [xc , r, diagnostics] = chebychev_ball(A, b, G, W, S, H, F)
-%[xc , r, diagnostics] = chebychev_ball(A, b, G, W, S, H, F)
+function [xc , r, diagnostics] = chebychev_ball(A, b, G, W, S, H, F, Nu, Nstate)
+%[xc , r, diagnostics] = chebychev_ball(A, b, G, W, S, H, F, Nu, Nstate)
 %
 %Return the center of the largest possible ball that can be placed inside
 %the region defined by Ax<=b (Chebyshev center) and that Vz(x) is feasible.
@@ -22,9 +22,9 @@ function [xc , r, diagnostics] = chebychev_ball(A, b, G, W, S, H, F)
 %constrained systems" by A. Bemporad, M. Morari, V. Dua, and E. Pistikopoulos. 
    
 
-    xc = sdpvar(2,1,'full');
+    xc = sdpvar(Nstate,1,'full');
     r = sdpvar(1);
-    z = sdpvar(2,1,'full'); 
+    z = sdpvar(Nu,1,'full'); 
     
     LMI = [];
     for i = 1:size(A,1)
@@ -34,8 +34,10 @@ function [xc , r, diagnostics] = chebychev_ball(A, b, G, W, S, H, F)
 
     options=sdpsettings;
     options.solver='sedumi';
+    options.verbose = 0;
     diagnostics = optimize(LMI,-r,options);
-    xc = double(xc);
+    
+    xc = double(xc)
     r = double(r);
 
 end

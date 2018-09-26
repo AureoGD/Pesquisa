@@ -22,7 +22,7 @@ function [A, b] = define_region(G, W, S, G_tio, W_tio, S_tio, H, tol)
     
     A = [];
     b = [];
-    disp('size A_2')
+    
     for i = 1:size(A_2,1)
         flag = 0;
         

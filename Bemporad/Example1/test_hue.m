@@ -1,3 +1,13 @@
+clc 
+for i = 2:length(W)
+    i
+    z0 = DU_hist(:,i);
+    G(i,:)*z0
+    W(i,:) + S(i,:)*[X(:,i) ; u(i-1) ; r]
+    G(i,:)*z0 - W(i,:) - S(i,:)*[X(:,i) ; u(i-1) ; r]
+ end
+
+
 % %     clear f
 % %     clear x
 % %     clear LMI
@@ -40,19 +50,19 @@
 % ylim([-1.5 1.5])
 
 %%
-figure(5)
-hold on
-for i=1:size(new_Regions,1)
-    i
-  %if i~=10 && i~=15 %&& i~=15
-        plotregion(-new_Regions{i,1},-new_Regions{i,2}) 
-  %end
-   xlim([-1.5 1.5])
-ylim([-1.5 1.5])
-end
-plotregion(-A_CR0,-b_CR0)
-xlim([-1.5 1.5])
-ylim([-1.5 1.5])
+% figure(5)
+% hold on
+% for i=1:size(new_Regions,1)
+%     i
+%   %if i~=10 && i~=15 %&& i~=15
+%         plotregion(-new_Regions{i,1},-new_Regions{i,2}) 
+%   %end
+%    xlim([-1.5 1.5])
+% ylim([-1.5 1.5])
+% end
+% plotregion(-A_CR0,-b_CR0)
+% xlim([-1.5 1.5])
+% ylim([-1.5 1.5])
 % 
 %%
 % figure(17)

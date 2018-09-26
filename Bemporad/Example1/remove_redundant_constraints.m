@@ -1,5 +1,5 @@
-function [A_new, b_new] = remove_redundant_constraints(A, b)
-%[A_new, b_new] = remove_redundant_constraints(A, b)
+function [A_new, b_new] = remove_redundant_constraints(A, b, Nu, Nstate)
+%[A_new, b_new] = remove_redundant_constraints(A, b, Nu, Nstate)
 %
 %Remove the redundant constraints of a polyehdral defined by Ax<=b.
 %Inputs:
@@ -14,7 +14,7 @@ function [A_new, b_new] = remove_redundant_constraints(A, b)
     index = [];
       
     for i=1:size(A,1)
-        x = sdpvar(2,1,'full');
+        x = sdpvar(Nstate,1,'full');
         LMI = [];
         for j=1:size(A,1)
             if j ~= i
@@ -25,6 +25,7 @@ function [A_new, b_new] = remove_redundant_constraints(A, b)
         objetivo = A(i,:)*x;
         options = sdpsettings;
         options.solver = 'sedumi';
+        options.verbose = 0;
         optimize(LMI,-objetivo,options);
         if(double(objetivo) <= b(i))
             index = [index, i];

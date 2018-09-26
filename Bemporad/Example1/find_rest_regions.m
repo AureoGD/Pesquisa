@@ -1,5 +1,5 @@
-function [CRest] = find_rest_regions(A, b, out_region)
-%[CRest] = find_rest_regions(A, b, out_region)
+function [CRest] = find_rest_regions(A, b, Nu, Nstate, out_region)
+%[CRest] = find_rest_regions(A, b, Nu, Nstate, out_region)
 %Find the rest regions from the polyehdral defined by Ax<=b inside an region.
 %Inputs:
 %       A, b - matrices that define the polyhedral Ax <= b
@@ -28,7 +28,7 @@ Nx = 0;
         end
     end
 
-    Nr=Nx
+    Nr=Nx;
     for i = 1:(size(A,1)-Nr)
          A_Ri_rest = [];
          b_Ri_rest = [];
@@ -40,12 +40,12 @@ Nx = 0;
                     b_Ri_rest = [b_Ri_rest ; b(j,:)];
                 end
             end
-            i
+            i;
             %A(i,:)
             %CRest{i,1} = [CRest{i,1}; -A(i,:)];
             %CRest{i,2} = [CRest{i,2}; -b(i,:)];
-            A_Ri_rest = [A_Ri_rest ; -A(i,:)]
-            b_Ri_rest = [b_Ri_rest ; -b(i,:)]
+            A_Ri_rest = [A_Ri_rest ; -A(i,:)];
+            b_Ri_rest = [b_Ri_rest ; -b(i,:)];
             
             new_A =  A_Ri_rest;
             new_b =  b_Ri_rest;
@@ -64,7 +64,7 @@ Nx = 0;
                 %CRest{i,2} = [new_b; b((size(b,1)-Nx+1):size(b,1),:); out_region{1,2}];
 
             end
-            [CRest{i,1}, CRest{i,2}] = remove_redundant_constraints(new_A,new_b);
+            [CRest{i,1}, CRest{i,2}] = remove_redundant_constraints(new_A, new_b, Nu, Nstate);
             
     end
     

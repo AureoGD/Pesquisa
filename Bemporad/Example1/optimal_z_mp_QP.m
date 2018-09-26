@@ -21,7 +21,7 @@ function [z0, diagnostics] = optimal_z_mp_QP(G, W, S, H, F, x0, Nu)
 %Algoritm based on the paper "The explicit linear quadratic regulator for
 %constrained systems" by A. Bemporad, M. Morari, V. Dua, and E. Pistikopoulos. 
     U = sdpvar(Nu,1,'full'); 
-
+    x0
     z = U + inv(H)*F'*x0; 
 
     LMI = [];
@@ -30,7 +30,8 @@ function [z0, diagnostics] = optimal_z_mp_QP(G, W, S, H, F, x0, Nu)
     objetivo = 0.5*z'*H*z;
     options = sdpsettings;
     options.solver = 'sedumi';
-
+    options.verbose = 0;
+    
     diagnostics = optimize(LMI,objetivo,options);
     z0 = double(z);
 
